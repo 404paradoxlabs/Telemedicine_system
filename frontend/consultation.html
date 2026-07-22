@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Consultation | ORIGEN ONE GHANA</title>
+  <link rel="stylesheet" href="styles-v2.css" />
+</head>
+<body onload="consultationInit()">
+  <main class="consult-room">
+    <section class="consult-header card">
+      <div>
+        <div class="brand-row brand-identity"><div class="logo-mark">O1</div><span><b>ORIGEN ONE GHANA</b><small>GOLD COAST</small></span></div>
+        <h1>Live Online Consultation</h1>
+        <p id="roomSubtitle">Preparing consultation room...</p>
+      </div>
+      <div class="button-row">
+        <button class="btn ghost" onclick="returnToDashboard()">Back to Dashboard</button>
+        <button class="btn danger" onclick="leaveConsultation()">Leave Call</button>
+      </div>
+    </section>
+
+    <section class="video-stage">
+      <div class="video-card remote-video-card">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div class="video-label"><span id="remoteLabel">Waiting for participant</span></div>
+      </div>
+      <div class="video-card local-video-card">
+        <video id="localVideo" autoplay muted playsinline></video>
+        <div class="video-label"><span>You</span></div>
+      </div>
+    </section>
+
+    <section class="consult-controls card">
+      <div>
+        <h2>Consultation Controls</h2>
+        <p id="connectionStatus" class="hint">Connecting...</p>
+      </div>
+      <div class="button-row">
+        <button class="btn" id="startMediaBtn" onclick="startConsultationMedia()">Start Camera/Mic</button>
+        <button class="btn secondary" id="toggleMicBtn" onclick="toggleMicrophone()">Mute Mic</button>
+        <button class="btn secondary" id="toggleCameraBtn" onclick="toggleCamera()">Turn Camera Off</button>
+      </div>
+    </section>
+
+    <section class="grid two consult-bottom">
+      <div class="card">
+        <h2>Room Chat</h2>
+        <div id="roomMessages" class="room-messages"></div>
+        <div class="chat-input-row">
+          <input id="roomChatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendRoomChat()" />
+          <button class="btn" onclick="sendRoomChat()">Send</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Clinical Safety Note</h2>
+        <p class="hint">This call is for remote consultation only. If the patient has severe chest pain, difficulty breathing, heavy bleeding, loss of consciousness, stroke-like symptoms, or another emergency warning sign, advise immediate physical medical care.</p>
+        <div class="result-box" id="roomInfo">Loading appointment details...</div>
+      </div>
+    </section>
+  </main>
+  <script src="app-v2.js"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard | ORIGEN ONE GHANA</title>
+  <link rel="stylesheet" href="styles-v2.css" />
+</head>
+<body onload="patientInit()">
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row brand-identity"><div class="logo-mark">O1</div><span><b>ORIGEN ONE GHANA</b><small>GOLD COAST</small></span></div>
+      <div class="nav-group-title">Patient</div>
+      <div class="nav-link" data-section="patient-overview"><span class="icon">⌂</span>Overview</div>
+      <div class="nav-link" data-section="patient-doctors"><span class="icon">⚕</span>Find Doctors</div>
+      <div class="nav-link" data-section="patient-screening"><span class="icon">✦</span>AI Screening</div>
+      <div class="nav-link" data-section="patient-chatbot"><span class="icon">☼</span>AI Chatbot</div>
+      <div class="nav-link" data-section="patient-timeline"><span class="icon">≋</span>Timeline</div>
+      <div class="nav-link" data-section="patient-booking"><span class="icon">◴</span>Book Appointment</div>
+      <div class="nav-link" data-section="patient-payments"><span class="icon">₵</span>Payments</div>
+      <div class="nav-link" data-section="patient-records"><span class="icon">▣</span>Medical Records</div>
+      <div class="nav-link" data-section="patient-prescriptions"><span class="icon">℞</span>Prescriptions</div>
+      <div class="nav-link" data-section="patient-profile"><span class="icon">◉</span>Profile</div>
+      <div class="nav-link" data-section="patient-settings"><span class="icon">⚙</span>Settings</div>
+      <div class="nav-link" onclick="logout()"><span class="icon">↩</span>Logout</div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <div>
+          <button class="btn ghost mobile-menu" id="menuBtn">Menu</button>
+          <h1>Patient Dashboard</h1>
+          <p>Manage screening, consultations, records, payments, and prescriptions online.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="theme-chip" onclick="toggleGlobalTheme()"><span data-theme-status>Light mode</span></button>
+          <div class="user-pill"><div class="avatar" data-user-initial>U</div><div><strong data-user-name>User</strong><br><small data-user-role>patient</small></div></div>
+        </div>
+      </div>
+
+      <section class="page-section" id="patient-overview">
+        <div class="grid four">
+          <div class="stat"><div class="value" id="statDoctors">0</div><div class="label">Approved Doctors</div></div>
+          <div class="stat"><div class="value" id="statScreenings">0</div><div class="label">AI Screenings</div></div>
+          <div class="stat"><div class="value" id="statAppointments">0</div><div class="label">Appointments</div></div>
+          <div class="stat"><div class="value" id="statPrescriptions">0</div><div class="label">Prescriptions</div></div>
+        </div>
+        <div class="grid two" style="margin-top:18px">
+          <div class="card"><h2>Notifications</h2><div id="notificationsList"></div></div>
+          <div class="card"><h2>Recent Appointments</h2><div id="appointmentsTable"></div></div>
+        </div>
+      </section>
+
+      <section class="page-section" id="patient-doctors">
+        <div class="card-head"><div><h2>Find Approved Doctors</h2><p class="hint">Search by specialty and select a doctor for booking.</p></div><div class="button-row"><input id="doctorSearch" placeholder="Search specialty" /><button class="btn" onclick="loadDoctors()">Search</button></div></div>
+        <div class="grid three" id="doctorGrid"></div>
+      </section>
+
+      <section class="page-section" id="patient-screening">
+        <div class="grid two">
+          <div class="card">
+            <h2>AI Medical Screening</h2>
+            <div id="screeningAlert" class="alert" style="display:none"></div>
+            <div class="field"><label>Main complaint</label><input id="complaint" value="Fever and headache" /><button class="btn ghost mini-btn" onclick="speechToTextToInput('complaint')">Speak</button></div>
+            <div class="field"><label>Symptoms separated by commas</label><input id="symptoms" value="fever, headache, chills, vomiting" /><button class="btn ghost mini-btn" onclick="speechToTextToInput('symptoms')">Speak</button></div>
+            <div class="field"><label>Duration</label><input id="duration" value="3 days" /></div>
+            <div class="form-grid">
+              <div class="field"><label>Medication taken?</label><input id="screeningMedication" value="No" /></div>
+              <div class="field"><label>Difficulty breathing?</label><select id="screeningBreathing"><option>No</option><option>Yes</option></select></div>
+              <div class="field"><label>Known allergies?</label><input id="screeningAllergy" value="No" /></div>
+            </div>
+            <label><input id="disclaimerAccepted" type="checkbox" checked /> I accept that AI screening is not a final diagnosis.</label><br><br>
+            <button class="btn" onclick="createScreening()">Run Screening</button>
+          </div>
+          <div class="card"><div id="screeningSummary"><h3>Screening Result</h3><p class="hint">Your AI screening summary will appear here.</p></div></div>
+        </div>
+        <div class="card" style="margin-top:18px"><h2>Previous Screenings</h2><div id="screeningList"></div></div>
+      </section>
+
+      <section class="page-section" id="patient-booking">
+        <div class="card">
+          <h2>Book Online Consultation</h2>
+          <div id="bookingAlert" class="alert" style="display:none"></div>
+          <div class="form-grid">
+            <div class="field"><label>Doctor</label><select id="doctorId" onchange="loadSelectedDoctorAvailability()"></select></div>
+            <div class="field"><label>AI Screening ID</label><input id="screeningId" placeholder="Optional but recommended" /></div>
+            <div class="field"><label>Date</label><input id="appointmentDate" type="date" /></div>
+            <div class="field"><label>Time</label><input id="appointmentTime" type="time" value="10:00" /></div>
+            <div class="field"><label>Consultation Type</label><select id="consultationType"><option value="video">Video</option><option value="audio">Audio</option><option value="chat">Chat</option></select></div>
+          </div>
+          <div id="selectedDoctorAvailability" class="alert info" style="margin-top:12px">Select a doctor to view available days and times.</div>
+          <div class="card soft-card" style="margin-top:14px">
+            <h3>Who is this consultation for?</h3>
+            <div class="form-grid">
+              <div class="field"><label>Booking For</label><select id="bookingForSelf" onchange="toggleOtherPatientFields()"><option value="true">Myself</option><option value="false">Family member / another person</option></select></div>
+              <div class="field other-patient-field" style="display:none"><label>Patient Name</label><input id="otherPatientName" placeholder="Full name of family member" /></div>
+              <div class="field other-patient-field" style="display:none"><label>Relationship</label><input id="otherPatientRelationship" placeholder="Child, spouse, parent, sibling, friend" /></div>
+              <div class="field other-patient-field" style="display:none"><label>Age</label><input id="otherPatientAge" type="number" min="0" placeholder="Age" /></div>
+              <div class="field other-patient-field" style="display:none"><label>Gender</label><select id="otherPatientGender"><option value="">Select</option><option>Female</option><option>Male</option><option>Other</option></select></div>
+              <div class="field other-patient-field" style="display:none"><label>Contact</label><input id="otherPatientContact" placeholder="Optional phone number" /></div>
+            </div>
+            <div class="field other-patient-field" style="display:none"><label>Notes for Doctor</label><textarea id="otherPatientNotes" placeholder="Briefly explain why you are booking for this person"></textarea></div>
+          </div>
+          <button class="btn" onclick="bookAppointment()">Create Appointment</button>
+        </div>
+        <div class="card" style="margin-top:18px"><h2>My Appointments</h2><div id="appointmentsTable"></div></div>
+      </section>
+
+      <section class="page-section" id="patient-payments">
+        <div class="grid two">
+          <div class="card">
+            <h2>Pay Consultation Fee</h2>
+            <div id="paymentAlert" class="alert" style="display:none"></div>
+            <div class="field"><label>Appointment ID</label><input id="paymentAppointmentId" /></div>
+            <div class="field"><label>Payment Method</label><select id="paymentMethod"><option value="mock_mobile_money">Mock Mobile Money</option><option value="mock_card">Mock Card</option></select></div>
+            <button class="btn" onclick="payAppointment()">Pay Now</button>
+          </div>
+          <div class="card"><h2>Payment History</h2><div id="paymentsTable"></div></div>
+        </div>
+      </section>
+
+      <section class="page-section" id="patient-records">
+        <div class="grid two">
+          <div class="card">
+            <h2>Upload Medical Record</h2>
+            <div id="recordAlert" class="alert" style="display:none"></div>
+            <div class="field"><label>Title</label><input id="recordTitle" value="Malaria test result" /></div>
+            <div class="field"><label>Description</label><textarea id="recordDescription">Uploaded before online consultation.</textarea></div>
+            <div class="field"><label>Linked Appointment</label><select id="appointmentSelect"></select></div>
+            <div class="field"><label>File</label><input id="recordFile" type="file" /></div>
+            <button class="btn" onclick="uploadRecord()">Upload Record</button>
+          </div>
+          <div class="card"><h2>My Medical Records</h2><div id="recordsTable"></div></div>
+        </div>
+      </section>
+
+      <section class="page-section" id="patient-prescriptions">
+        <div class="card"><h2>Drug Prescriptions</h2><div id="prescriptionsTable"></div></div>
+      </section>
+
+
+      <section class="page-section" id="patient-chatbot">
+        <div class="grid two">
+          <div class="card">
+            <h2>AI Chatbot Guidance</h2>
+            <p class="hint">Ask for basic guidance, doctor-specialty recommendation, and booking direction. This is not a final diagnosis.</p>
+            <div id="chatbotAlert" class="alert" style="display:none"></div>
+            <div class="chatbot-box" id="chatbotThread">
+              <div class="chat-line bot"><strong>ORIGEN AI</strong><p>Hello. Describe your symptoms and I will recommend the right doctor or next step.</p><small>Emergency symptoms should be handled through urgent physical care.</small></div>
+            </div>
+            <div class="chat-input-row">
+              <input id="chatbotInput" placeholder="Example: I have fever, headache and weakness for 3 days" onkeydown="if(event.key==='Enter') sendChatbotMessage()" />
+              <button class="btn" onclick="sendChatbotMessage()">Send</button>
+            </div>
+            <div class="button-row" style="margin-top:10px">
+              <button class="btn secondary" onclick="speechToTextToInput('chatbotInput')">Speak Symptoms</button>
+              <button class="btn ghost" onclick="switchSection('patient-screening')">Go to AI Screening</button>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Chatbot Responsibilities</h2>
+            <div class="alert info">The chatbot can collect symptoms, recommend a doctor specialty, guide booking, and flag emergency-risk language.</div>
+            <div class="result-box">Supported guidance: General Practitioner, Dermatology, Obstetrics/Gynaecology, Paediatrics, Ophthalmology, and Emergency Care.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" id="patient-timeline">
+        <div class="card">
+          <div class="card-head"><div><h2>Patient History Timeline</h2><p class="hint">Chronological history of registration, AI screening, chatbot guidance, appointments, payments, uploads, consultations, and prescriptions.</p></div><button class="btn secondary" onclick="loadTimeline()">Refresh</button></div>
+          <div class="timeline-list" id="timelineList"></div>
+        </div>
+      </section>
+
+      <section class="page-section" id="patient-settings">
+        <div class="grid two">
+          <div class="card settings-card">
+            <h2>Language and Display Settings</h2>
+            <div id="settingsAlert" class="alert" style="display:none"></div>
+            <div class="field"><label>Preferred Language</label><select id="languageSelect"><option value="en">English</option><option value="fr">French</option><option value="tw">Twi</option><option value="ee">Ewe</option><option value="gaa">Ga</option><option value="ha">Hausa</option><option value="ar">Arabic</option><option value="es">Spanish</option><option value="pt">Portuguese</option><option value="sw">Swahili</option></select></div>
+            <div class="field"><label>Theme</label><select id="themeSelect"><option value="light">Light Mode</option><option value="dark">Dark Mode</option></select></div>
+            <h3>Notification and Reminder Settings</h3>
+            <label><input id="emailNotifications" type="checkbox" checked /> Receive email notifications</label><br>
+            <label><input id="smsNotifications" type="checkbox" checked /> Receive SMS notifications</label>
+            <div class="field"><label>Reminder Frequency</label><select id="reminderFrequency"><option value="none">No reminders</option><option value="booking_only">Only booking confirmations</option><option value="24h_and_1h">24 hours and 1 hour before</option><option value="12h_and_1h">12 hours and 1 hour before</option><option value="6h_and_30m">6 hours and 30 minutes before</option><option value="daily_9am_until_due">Daily at 9am until consultation</option></select></div>
+            <button class="btn" onclick="savePreferences()">Save Preferences</button>
+          </div>
+          <div class="card">
+            <h2>Translation Preview</h2>
+            <p class="hint">Current language: <strong data-language-status>English</strong></p>
+            <div id="translationPreview"></div>
+          </div>
+          <div class="card">
+            <h2 data-i18n="translation.api">Translation API Test</h2>
+            <p class="hint" data-i18n="translation.api.hint">Type text and translate it through the backend translation API.</p>
+            <div class="field"><label data-i18n="text.to.translate">Text to translate</label><input id="translateTestInput" value="Book Appointment" /></div>
+            <button class="btn secondary" onclick="testTranslationApi()" data-i18n="translate.now">Translate Now</button>
+            <div id="translationApiResult" class="result-box" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section" id="patient-profile">
+        <div class="grid two">
+          <div class="card">
+            <h2>Profile and Medical Background</h2>
+            <div id="profileAlert" class="alert" style="display:none"></div>
+            <div class="form-grid">
+              <div class="field"><label>Gender</label><input id="profileGender" /></div>
+              <div class="field"><label>Date of Birth</label><input id="profileDob" type="date" /></div>
+              <div class="field"><label>Location</label><input id="profileLocation" /></div>
+              <div class="field"><label>Emergency Contact</label><input id="profileEmergency" /></div>
+            </div>
+            <div class="field"><label>Allergies</label><textarea id="profileAllergies"></textarea></div>
+            <div class="field"><label>Medical Conditions</label><textarea id="profileConditions"></textarea></div>
+            <div class="field"><label>Current Medications</label><textarea id="profileMeds"></textarea></div>
+            <button class="btn" onclick="updatePatientProfile()">Save Profile</button>
+          </div>
+          <div class="card">
+            <h2>Submit Complaint</h2>
+            <div id="complaintAlert" class="alert" style="display:none"></div>
+            <div class="field"><label>Appointment ID</label><input id="complaintAppointmentId" placeholder="Optional" /></div>
+            <div class="field"><label>Category</label><select id="complaintCategory"><option>Payment issue</option><option>Doctor did not attend</option><option>Technical issue</option><option>Prescription issue</option></select></div>
+            <div class="field"><label>Description</label><textarea id="complaintDescription"></textarea></div>
+            <button class="btn" onclick="createComplaint()">Submit Complaint</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app-v2.js"></script>
+</body>
+</html>

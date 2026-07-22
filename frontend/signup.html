@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Patient Account | ORIGEN ONE GHANA</title>
+  <link rel="stylesheet" href="styles-v2.css" />
+</head>
+<body>
+  <main class="hero signup-hero">
+    <section>
+      <div class="brand-row brand-identity"><div class="logo-mark">O1</div><span><b>ORIGEN ONE GHANA</b><small>GOLD COAST</small></span></div>
+      <h1>Create your patient account.</h1>
+      <p>Sign up as a patient, access ORIGEN ONE GHANA GOLD COAST telemedicine, complete AI medical screening, book doctors, upload medical records, make payments, and receive prescriptions online.</p>
+      <div class="hero-actions">
+        <a class="btn secondary" href="/static/index.html">Back to Login</a>
+        <a class="btn secondary" href="/docs" target="_blank">Open API Docs</a>
+        <button type="button" class="theme-chip" onclick="togglePublicTheme()"><span data-theme-status>Light mode</span></button>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-tile"><strong>Self Registration</strong><span>Patients can create accounts without admin approval.</span></div>
+        <div class="feature-tile"><strong>Immediate Access</strong><span>After signup, the system logs patients in automatically.</span></div>
+        <div class="feature-tile"><strong>Patient Portal</strong><span>Access screening, booking, payments, records, and prescriptions.</span></div>
+      </div>
+    </section>
+
+    <section class="login-panel" id="signup">
+      <h2>Patient Sign Up</h2>
+      <p class="hint">Create a patient account to access the online consultation system.</p>
+      <div id="signupAlert" class="alert" style="display:none"></div>
+
+      <div class="form-grid">
+        <div class="field"><label>Full Name</label><input id="signupFullName" placeholder="e.g. Joshua Weyori" /></div>
+        <div class="field"><label>Email</label><input id="signupEmail" type="email" placeholder="you@example.com" /></div>
+        <div class="field"><label>Phone Number</label><input id="signupPhone" placeholder="0240000000" /></div>
+        <div class="field"><label>Gender</label>
+          <select id="signupGender">
+            <option value="">Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Date of Birth</label><input id="signupDob" type="date" /></div>
+        <div class="field"><label>Location</label><input id="signupLocation" placeholder="Accra" /></div>
+        <div class="field"><label>Emergency Contact</label><input id="signupEmergency" placeholder="0200000000" /></div>
+        <div class="field"><label>Password</label><input id="signupPassword" type="password" placeholder="Minimum 8 characters" /></div>
+        <div class="field"><label>Confirm Password</label><input id="signupConfirmPassword" type="password" placeholder="Repeat password" /></div>
+      </div>
+
+      <button class="btn block" onclick="registerPatient()">Create Patient Account</button>
+      <p class="auth-footer">Already have an account? <a href="/static/index.html#login">Login here</a></p>
+    </section>
+  </main>
+  <script src="app-v2.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORIGEN ONE GHANA | GOLD COAST Telemedicine</title>
+  <link rel="stylesheet" href="styles-v2.css" />
+</head>
+<body>
+  <main class="hero">
+    <section>
+      <div class="brand-row brand-identity"><div class="logo-mark">O1</div><span><b>ORIGEN ONE GHANA</b><small>GOLD COAST</small></span></div>
+      <h1>Online doctor consultations with AI-assisted screening.</h1>
+      <p>Patients can complete pre-consultation screening, book approved doctors, pay online, upload medical records, receive digital prescriptions, and manage their consultation history.</p>
+      <div class="hero-actions">
+        <a class="btn" href="#login">Sign In</a>
+        <a class="btn secondary" href="/static/signup.html">Create Patient Account</a>
+        <a class="btn secondary" href="/docs" target="_blank">Open API Docs</a>
+        <button type="button" class="theme-chip" onclick="togglePublicTheme()"><span data-theme-status>Light mode</span></button>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-tile"><strong>Patient Portal</strong><span>AI screening, booking, payment, record upload, prescriptions, complaints.</span></div>
+        <div class="feature-tile"><strong>Doctor Portal</strong><span>Appointments, consultation notes, patient records, prescriptions, availability.</span></div>
+        <div class="feature-tile"><strong>Admin Console</strong><span>Doctor approvals, reports, users, payments, complaints, AI question control.</span></div>
+      </div>
+    </section>
+
+    <section class="login-panel" id="login">
+      <h2>Sign in</h2>
+      <p class="hint">Use one of the seeded accounts below, or create a new patient account.</p>
+      <div id="loginAlert" class="alert" style="display:none"></div>
+      <div class="field"><label>Email</label><input id="loginEmail" value="patient@telemedapp.com" /></div>
+      <div class="field"><label>Password</label><input id="loginPassword" type="password" value="Patient@12345" /></div>
+      <button class="btn block" onclick="login()">Login to Dashboard</button>
+      <p class="auth-footer">New patient? <a href="/static/signup.html">Create your account</a></p>
+      <div class="demo-accounts">
+        <div class="demo-account" onclick="useDemo('patient@telemedapp.com','Patient@12345')"><strong>Patient</strong><small>patient@telemedapp.com / Patient@12345</small></div>
+        <div class="demo-account" onclick="useDemo('doctor@telemedapp.com','Doctor@12345')"><strong>Doctor</strong><small>doctor@telemedapp.com / Doctor@12345</small></div>
+        <div class="demo-account" onclick="useDemo('admin@telemedapp.com','Admin@12345')"><strong>Admin</strong><small>admin@telemedapp.com / Admin@12345</small></div>
+      </div>
+    </section>
+  </main>
+  <script src="app-v2.js"></script>
+</body>
+</html>
