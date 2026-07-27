@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Console | ORIGEN ONE GHANA</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="styles-v2.css" />
 </head>
 <body onload="adminInit()">
@@ -11,16 +12,16 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand-row brand-identity"><div class="logo-mark">O1</div><span><b>ORIGEN ONE GHANA</b><small>GOLD COAST</small></span></div>
       <div class="nav-group-title">Admin</div>
-      <div class="nav-link" data-section="admin-overview"><span class="icon">⌂</span>Overview</div>
-      <div class="nav-link" data-section="admin-doctors"><span class="icon">⚕</span>Doctor Approvals</div>
-      <div class="nav-link" data-section="admin-users"><span class="icon">◎</span>Users</div>
-      <div class="nav-link" data-section="admin-payments"><span class="icon">₵</span>Payments</div>
-      <div class="nav-link" data-section="admin-analytics"><span class="icon">▤</span>Analytics</div>
-      <div class="nav-link" data-section="admin-complaints"><span class="icon">!</span>Complaints</div>
-      <div class="nav-link" data-section="admin-screening"><span class="icon">✦</span>AI Screening Setup</div>
-      <div class="nav-link" data-section="admin-audit"><span class="icon">☷</span>Audit Logs</div>
-      <div class="nav-link" data-section="admin-settings"><span class="icon">⚙</span>Settings</div>
-      <div class="nav-link" onclick="logout()"><span class="icon">↩</span>Logout</div>
+      <div class="nav-link" data-section="admin-overview"><span class="material-symbols-outlined icon">dashboard</span>Overview</div>
+      <div class="nav-link" data-section="admin-doctors"><span class="material-symbols-outlined icon">verified_user</span>Doctor Approvals</div>
+      <div class="nav-link" data-section="admin-users"><span class="material-symbols-outlined icon">group</span>Users</div>
+      <div class="nav-link" data-section="admin-payments"><span class="material-symbols-outlined icon">payments</span>Payments</div>
+      <div class="nav-link" data-section="admin-analytics"><span class="material-symbols-outlined icon">analytics</span>Analytics</div>
+      <div class="nav-link" data-section="admin-complaints"><span class="material-symbols-outlined icon">report_problem</span>Complaints</div>
+      <div class="nav-link" data-section="admin-screening"><span class="material-symbols-outlined icon">tune</span>AI Screening Setup</div>
+      <div class="nav-link" data-section="admin-audit"><span class="material-symbols-outlined icon">receipt_long</span>Audit Logs</div>
+      <div class="nav-link" data-section="admin-settings"><span class="material-symbols-outlined icon">settings</span>Settings</div>
+      <div class="nav-link" onclick="logout()"><span class="material-symbols-outlined icon">logout</span>Logout</div>
     </aside>
 
     <main class="content">
@@ -151,6 +152,59 @@
 
     </main>
   </div>
+  <!-- Edit User Account Modal -->
+  <div class="modal-overlay" id="editUserModal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><span class="material-symbols-outlined icon-inline" style="vertical-align:-3px;color:var(--emerald)">manage_accounts</span> Edit User Account</h2>
+        <button class="modal-close-btn" onclick="closeEditUserModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="editUserAlert" class="alert" style="display:none"></div>
+        <input type="hidden" id="editUserId" />
+        <div class="field">
+          <label>Full Name</label>
+          <input id="editUserFullName" placeholder="Full Name" />
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input id="editUserEmail" type="email" placeholder="user@example.com" />
+        </div>
+        <div class="field">
+          <label>Phone Number</label>
+          <input id="editUserPhone" placeholder="0240000000" />
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>User Role</label>
+            <select id="editUserRole">
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Account Status</label>
+            <select id="editUserStatus">
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Reset Password <small class="hint">(leave blank to keep unchanged)</small></label>
+          <input id="editUserNewPassword" type="password" placeholder="New Password (min 6 chars)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" onclick="closeEditUserModal()">Cancel</button>
+        <button class="btn" onclick="adminSaveUser()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app-v2.js"></script>
 </body>
 </html>
+

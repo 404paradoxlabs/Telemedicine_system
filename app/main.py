@@ -11,6 +11,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse, FileResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 from jose import JWTError, jwt
@@ -58,6 +59,8 @@ from .schemas import (
     AuditLogOut,
     ChatbotMessageCreate,
     ChatbotResponse,
+    ChatbotHistoryItem,
+    ChatbotHistoryOut,
     ComplaintCreate,
     ComplaintOut,
     ConsultationCreate,
@@ -91,6 +94,7 @@ from .schemas import (
     UserPreferenceOut,
     UserPreferenceUpdate,
     UserOut,
+    UserUpdateAdmin,
 )
 
 Base.metadata.create_all(bind=engine)
@@ -1029,6 +1033,30 @@ async def chatbot_message(
         emergency_flag=analysis["emergency_flag"],
         disclaimer="AI chatbot guidance is not a final medical diagnosis.",
     )
+
+
+@app.get("/api/chatbot/history", response_model=ChatbotHistoryOut)
+def get_chatbot_history(
+    current_user: User = Depends(require_role(UserRole.patient)),
+    db: Session = Depends(get_db),
+):
+    patient = get_patient_or_403(current_user)
+    session = (
+        db.query(ChatbotSession)
+        .filter(ChatbotSession.patient_id == patient.id)
+        .order_by(ChatbotSession.created_at.desc())
+        .first()
+    )
+    if not session:
+        return ChatbotHistoryOut(session_id="", messages=[])
+    messages = (
+        db.query(ChatbotMessage)
+        .filter(ChatbotMessage.session_id == session.id)
+        .order_by(ChatbotMessage.created_at.asc())
+        .all()
+    )
+    return ChatbotHistoryOut(session_id=session.id, messages=messages)
+
 
 
 # ----------------------------- Patients -----------------------------
@@ -2134,6 +2162,46 @@ def admin_users(current_user: User = Depends(require_role(UserRole.admin)), db: 
     return db.query(User).order_by(User.created_at.desc()).all()
 
 
+@app.put("/api/admin/users/{user_id}", response_model=UserOut)
+def admin_update_user(
+    user_id: str,
+    payload: UserUpdateAdmin,
+    current_user: User = Depends(require_role(UserRole.admin)),
+    db: Session = Depends(get_db),
+):
+    target_user = db.get(User, user_id)
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if payload.email and payload.email != target_user.email:
+        existing = db.query(User).filter(User.email == payload.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        target_user.email = payload.email
+
+    if payload.full_name is not None:
+        target_user.full_name = payload.full_name
+    if payload.phone is not None:
+        target_user.phone = payload.phone
+    if payload.role is not None:
+        target_user.role = payload.role
+    if payload.status is not None:
+        try:
+            target_user.status = UserStatus(payload.status)
+        except Exception:
+            target_user.status = payload.status
+    if payload.new_password:
+        if len(payload.new_password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        target_user.password_hash = hash_password(payload.new_password)
+
+    log_action(db, current_user.id, "edited user account", "user", target_user.id, details=f"Updated {target_user.email}")
+    db.commit()
+    db.refresh(target_user)
+    return target_user
+
+
+
 @app.get("/api/admin/payments", response_model=list[PaymentOut])
 def admin_payments(current_user: User = Depends(require_role(UserRole.admin)), db: Session = Depends(get_db)):
     return db.query(Payment).order_by(Payment.created_at.desc()).all()
@@ -2199,8 +2267,5 @@ def admin_analytics(current_user: User = Depends(require_role(UserRole.admin)), 
 
 @app.get("/")
 def root():
-    return {
-        "system": "ORIGEN ONE GHANA — GOLD COAST Telemedicine System",
-        "docs": "/docs",
-        "frontend": "/static/index.html",
-    }
+    return RedirectResponse(url="/static/index.html")
+

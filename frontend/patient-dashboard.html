@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patient Dashboard | ORIGEN ONE GHANA</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="styles-v2.css" />
 </head>
 <body onload="patientInit()">
@@ -11,18 +12,18 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand-row brand-identity"><div class="logo-mark">O1</div><span><b>ORIGEN ONE GHANA</b><small>GOLD COAST</small></span></div>
       <div class="nav-group-title">Patient</div>
-      <div class="nav-link" data-section="patient-overview"><span class="icon">⌂</span>Overview</div>
-      <div class="nav-link" data-section="patient-doctors"><span class="icon">⚕</span>Find Doctors</div>
-      <div class="nav-link" data-section="patient-screening"><span class="icon">✦</span>AI Screening</div>
-      <div class="nav-link" data-section="patient-chatbot"><span class="icon">☼</span>AI Chatbot</div>
-      <div class="nav-link" data-section="patient-timeline"><span class="icon">≋</span>Timeline</div>
-      <div class="nav-link" data-section="patient-booking"><span class="icon">◴</span>Book Appointment</div>
-      <div class="nav-link" data-section="patient-payments"><span class="icon">₵</span>Payments</div>
-      <div class="nav-link" data-section="patient-records"><span class="icon">▣</span>Medical Records</div>
-      <div class="nav-link" data-section="patient-prescriptions"><span class="icon">℞</span>Prescriptions</div>
-      <div class="nav-link" data-section="patient-profile"><span class="icon">◉</span>Profile</div>
-      <div class="nav-link" data-section="patient-settings"><span class="icon">⚙</span>Settings</div>
-      <div class="nav-link" onclick="logout()"><span class="icon">↩</span>Logout</div>
+      <div class="nav-link" data-section="patient-overview"><span class="material-symbols-outlined icon">dashboard</span>Overview</div>
+      <div class="nav-link" data-section="patient-doctors"><span class="material-symbols-outlined icon">medical_services</span>Find Doctors</div>
+      <div class="nav-link" data-section="patient-screening"><span class="material-symbols-outlined icon">health_and_safety</span>AI Screening</div>
+      <div class="nav-link" data-section="patient-chatbot"><span class="material-symbols-outlined icon">smart_toy</span>AI Chatbot</div>
+      <div class="nav-link" data-section="patient-timeline"><span class="material-symbols-outlined icon">timeline</span>Timeline</div>
+      <div class="nav-link" data-section="patient-booking"><span class="material-symbols-outlined icon">calendar_month</span>Book Appointment</div>
+      <div class="nav-link" data-section="patient-payments"><span class="material-symbols-outlined icon">payments</span>Payments</div>
+      <div class="nav-link" data-section="patient-records"><span class="material-symbols-outlined icon">folder_shared</span>Medical Records</div>
+      <div class="nav-link" data-section="patient-prescriptions"><span class="material-symbols-outlined icon">medication</span>Prescriptions</div>
+      <div class="nav-link" data-section="patient-profile"><span class="material-symbols-outlined icon">account_circle</span>Profile</div>
+      <div class="nav-link" data-section="patient-settings"><span class="material-symbols-outlined icon">settings</span>Settings</div>
+      <div class="nav-link" onclick="logout()"><span class="material-symbols-outlined icon">logout</span>Logout</div>
     </aside>
 
     <main class="content">
@@ -140,27 +141,90 @@
 
 
       <section class="page-section" id="patient-chatbot">
-        <div class="grid two">
-          <div class="card">
-            <h2>AI Chatbot Guidance</h2>
-            <p class="hint">Ask for basic guidance, doctor-specialty recommendation, and booking direction. This is not a final diagnosis.</p>
+        <div class="grid chatbot-layout-grid">
+          <div class="card chatbot-card-main">
+            <div class="chatbot-header-bar">
+              <div class="ai-status-badge">
+                <div class="pulse-dot green"></div>
+                <div>
+                  <strong class="ai-title">ORIGEN AI Triage Assistant</strong>
+                  <span class="ai-sub">Online • Powered by Medical Knowledge Base</span>
+                </div>
+              </div>
+              <div class="chatbot-actions-bar">
+                <button class="btn btn-sm ghost" onclick="resetChatbotSession()" title="Start New Conversation"><span class="material-symbols-outlined">refresh</span> New Chat</button>
+                <button class="btn btn-sm ghost" id="ttsToggleBtn" onclick="toggleAudioReadout()" title="Toggle Audio Readout"><span class="material-symbols-outlined">volume_up</span> Voice: On</button>
+              </div>
+            </div>
+
+            <!-- Quick Prompt Suggestions -->
+            <div class="prompt-suggestions-container">
+              <span class="prompt-label">Quick Symptoms:</span>
+              <div class="prompt-chips">
+                <button class="prompt-chip" onclick="usePromptChip('I have fever, headache and weakness for 3 days')"><span class="material-symbols-outlined">thermostat</span> Fever & Headache</button>
+                <button class="prompt-chip" onclick="usePromptChip('I have an itchy red skin rash spreading on my arms')"><span class="material-symbols-outlined">dermatology</span> Skin Rash</button>
+                <button class="prompt-chip" onclick="usePromptChip('I need to speak to a General Practitioner about stomach pains')"><span class="material-symbols-outlined">medical_services</span> Stomach Ache</button>
+                <button class="prompt-chip" onclick="usePromptChip('I have blurry vision and eye irritation since morning')"><span class="material-symbols-outlined">visibility</span> Eye Irritation</button>
+                <button class="prompt-chip" onclick="usePromptChip('I need guidance for severe chest tightness and cough')"><span class="material-symbols-outlined">pulmonology</span> Cough & Chest</button>
+              </div>
+            </div>
+
             <div id="chatbotAlert" class="alert" style="display:none"></div>
+            
             <div class="chatbot-box" id="chatbotThread">
-              <div class="chat-line bot"><strong>ORIGEN AI</strong><p>Hello. Describe your symptoms and I will recommend the right doctor or next step.</p><small>Emergency symptoms should be handled through urgent physical care.</small></div>
+              <div class="chat-line bot">
+                <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+                <div class="chat-content">
+                  <div class="chat-sender">ORIGEN AI Assistant <span class="chat-time">Just now</span></div>
+                  <p>Hello! I am your AI Medical Assistant. Describe your symptoms or select a quick option above, and I will recommend the appropriate doctor specialty and next steps.</p>
+                  <div class="chat-disclaimer"><span class="material-symbols-outlined icon-inline" style="font-size:15px;vertical-align:-3px;color:var(--warning)">warning</span> Emergency symptoms should be handled immediately through urgent physical care.</div>
+                </div>
+              </div>
             </div>
-            <div class="chat-input-row">
-              <input id="chatbotInput" placeholder="Example: I have fever, headache and weakness for 3 days" onkeydown="if(event.key==='Enter') sendChatbotMessage()" />
-              <button class="btn" onclick="sendChatbotMessage()">Send</button>
+
+            <!-- Animated Typing Indicator -->
+            <div class="chatbot-typing-indicator" id="chatbotTyping" style="display:none">
+              <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+              <div class="typing-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="typing-text">ORIGEN AI is analyzing symptoms...</span>
             </div>
-            <div class="button-row" style="margin-top:10px">
-              <button class="btn secondary" onclick="speechToTextToInput('chatbotInput')">Speak Symptoms</button>
-              <button class="btn ghost" onclick="switchSection('patient-screening')">Go to AI Screening</button>
+
+            <div class="chat-input-wrapper">
+              <div class="chat-input-row">
+                <input id="chatbotInput" placeholder="Describe symptoms (e.g. fever, headache for 2 days)..." onkeydown="if(event.key==='Enter') sendChatbotMessage()" />
+                <button class="btn-mic" onclick="speechToTextToInput('chatbotInput')" title="Speak Symptoms"><span class="material-symbols-outlined">mic</span></button>
+                <button class="btn btn-primary btn-send" onclick="sendChatbotMessage()">
+                  <span>Send</span>
+                  <span class="material-symbols-outlined" style="font-size:18px">send</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="card">
-            <h2>Chatbot Responsibilities</h2>
-            <div class="alert info">The chatbot can collect symptoms, recommend a doctor specialty, guide booking, and flag emergency-risk language.</div>
-            <div class="result-box">Supported guidance: General Practitioner, Dermatology, Obstetrics/Gynaecology, Paediatrics, Ophthalmology, and Emergency Care.</div>
+
+          <div class="card chatbot-side-card">
+            <div class="side-card-header">
+              <h2><span class="material-symbols-outlined" style="vertical-align:-3px;color:var(--emerald)">psychology</span> Clinical Guidance & Scope</h2>
+            </div>
+            <div class="alert info mb-3">
+              <strong>Interactive Triage System</strong><br>
+              Analyzes symptoms, flags emergency risks, suggests specialties, and enables 1-click doctor booking.
+            </div>
+
+            <h3 class="side-subhead">Supported Specialties</h3>
+            <div class="specialty-pills-grid">
+              <span class="spec-pill" onclick="filterDoctorSpecialty('General Practitioner')"><span class="material-symbols-outlined" style="font-size:18px">stethoscope</span> General Practitioner</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Dermatology')"><span class="material-symbols-outlined" style="font-size:18px">dermatology</span> Dermatology</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Obstetrics/Gynaecology')"><span class="material-symbols-outlined" style="font-size:18px">pregnant_woman</span> Obstetrics & Gynae</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Paediatrics')"><span class="material-symbols-outlined" style="font-size:18px">child_care</span> Paediatrics</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Ophthalmology')"><span class="material-symbols-outlined" style="font-size:18px">visibility</span> Ophthalmology</span>
+              <span class="spec-pill emergency" onclick="filterDoctorSpecialty('Emergency Care')"><span class="material-symbols-outlined" style="font-size:18px">warning</span> Emergency Care</span>
+            </div>
+
+            <div class="side-card-footer mt-4">
+              <button class="btn ghost btn-block" onclick="switchSection('patient-screening')"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px">assignment</span> Run Detailed AI Screening</button>
+            </div>
           </div>
         </div>
       </section>
@@ -228,6 +292,43 @@
       </section>
     </main>
   </div>
+  <!-- Floating Global AI Assistant Widget -->
+  <div class="global-chatbot-widget" id="globalChatbotWidget">
+    <div class="global-chatbot-drawer" id="globalChatbotDrawer" style="display:none">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <div class="pulse-dot green"></div>
+          <strong>ORIGEN AI Assistant</strong>
+        </div>
+        <div class="drawer-controls">
+          <button class="drawer-btn" onclick="toggleGlobalChatbot()" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="drawer-body" id="globalChatbotThread">
+        <div class="chat-line bot">
+          <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+          <div class="chat-content">
+            <div class="chat-sender">ORIGEN AI <span class="chat-time">Just now</span></div>
+            <p>Hi! Need quick symptom advice or doctor recommendation?</p>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-typing" id="globalChatbotTyping" style="display:none">
+        <span class="typing-dots"><span></span><span></span><span></span></span> AI is thinking...
+      </div>
+      <div class="drawer-input-row">
+        <input id="globalChatbotInput" placeholder="Ask AI Assistant..." onkeydown="if(event.key==='Enter') sendGlobalChatbotMessage()" />
+        <button class="btn-mic-sm" onclick="speechToTextToInput('globalChatbotInput')" title="Speak"><span class="material-symbols-outlined" style="font-size:16px">mic</span></button>
+        <button class="btn-send-sm" onclick="sendGlobalChatbotMessage()" title="Send"><span class="material-symbols-outlined" style="font-size:16px">send</span></button>
+      </div>
+    </div>
+    <button class="global-chatbot-trigger" id="globalChatbotTrigger" onclick="toggleGlobalChatbot()" title="Open AI Health Assistant">
+      <span class="material-symbols-outlined bot-icon">smart_toy</span>
+      <span class="widget-label">AI Assistant</span>
+    </button>
+  </div>
+
   <script src="app-v2.js"></script>
 </body>
 </html>
+

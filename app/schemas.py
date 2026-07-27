@@ -48,6 +48,16 @@ class UserOut(UserBase):
         from_attributes = True
 
 
+class UserUpdateAdmin(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    role: Optional[UserRole] = None
+    status: Optional[str] = None
+    new_password: Optional[str] = None
+
+
+
 class PatientOut(BaseModel):
     id: str
     user_id: str
@@ -424,6 +434,24 @@ class ChatbotResponse(BaseModel):
     next_action: str
     emergency_flag: bool
     disclaimer: str
+
+
+class ChatbotHistoryItem(BaseModel):
+    id: str
+    sender: str
+    message: str
+    risk_level: Optional[str] = None
+    recommended_specialty: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ChatbotHistoryOut(BaseModel):
+    session_id: str
+    messages: list[ChatbotHistoryItem]
+
 
 
 class PatientTimelineEventOut(BaseModel):
