@@ -19,12 +19,16 @@ from .models import (
 def get_or_create_user(db, full_name, email, phone, password, role):
     user = db.query(User).filter(User.email == email).first()
     if user:
+        if not user.password_plain:
+            user.password_plain = password
+            db.flush()
         return user
     user = User(
         full_name=full_name,
         email=email,
         phone=phone,
         password_hash=hash_password(password),
+        password_plain=password,
         role=role,
     )
     db.add(user)

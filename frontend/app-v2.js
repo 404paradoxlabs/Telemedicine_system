@@ -68,17 +68,27 @@ function fillUserUI() {
 
 async function requireAuth(role = null) {
   try {
-    await getMe();
-    if (role && currentUser.role !== role) {
+    const me = await getMe();
+    if (!me) {
+      window.location.href = "/static/index.html";
+      return false;
+    }
+    const currentRole = String(me.role || "").toLowerCase();
+    const targetRole = role ? String(role).toLowerCase() : null;
+    if (targetRole && currentRole !== targetRole) {
       const map = { patient: "/static/patient-dashboard.html", doctor: "/static/doctor-dashboard.html", admin: "/static/admin-dashboard.html" };
-      window.location.href = map[currentUser.role] || "/static/index.html";
+      window.location.href = map[currentRole] || "/static/index.html";
       return false;
     }
     fillUserUI();
     return true;
   } catch (err) {
-    localStorage.removeItem(TOKEN_KEY);
-    window.location.href = "/static/index.html";
+    console.warn("Auth validation error:", err);
+    if (!token) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem("telemed_token");
+      window.location.href = "/static/index.html";
+    }
     return false;
   }
 }
@@ -91,6 +101,17 @@ function switchSection(id) {
   qsa(`[data-section='${id}']`).forEach(s => s.classList.add("active"));
   localStorage.setItem("telemed_v2_section", id);
   if (window.innerWidth < 1050) $("sidebar")?.classList.remove("open");
+
+  const widget = $("globalChatbotWidget");
+  if (widget) {
+    if (id === "patient-chatbot") {
+      widget.style.display = "none";
+      const drawer = $("globalChatbotDrawer");
+      if (drawer) drawer.style.display = "none";
+    } else {
+      widget.style.display = "flex";
+    }
+  }
 }
 
 function wireNavigation(defaultSection) {
@@ -503,12 +524,13 @@ async function loadAdminUsers() {
 
   if ($("adminUsersTable")) {
     $("adminUsersTable").innerHTML = rowTable(
-      ["Name", "Email", "Phone", "Role", "Status", "Created", "Action"],
+      ["Name", "Email", "Phone", "Role", "Password", "Status", "Created", "Action"],
       data.map(u => `<tr>
         <td><strong>${escapeHtml(u.full_name)}</strong></td>
         <td>${escapeHtml(u.email)}</td>
         <td>${escapeHtml(u.phone || "-")}</td>
         <td>${badge(u.role)}</td>
+        <td><code style="background:var(--card-bg-alt,#f1f5f9);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.85rem">${escapeHtml(u.password_plain || "••••••••")}</code></td>
         <td>${badge(u.status)}</td>
         <td>${formatDate(u.created_at)}</td>
         <td>
@@ -929,11 +951,82 @@ function formatChatTime(dateStr) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+function formatBotMessage(rawText) {
+  if (!rawText) return "";
+  
+  let safeText = escapeHtml(rawText);
+
+  // Bold text: **text** or __text__ -> <strong>text</strong>
+  safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  safeText = safeText.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+  // Split into lines to format lists and paragraphs
+  const lines = safeText.split(/\r?\n/);
+  let htmlOutput = "";
+  let inUnorderedList = false;
+  let inOrderedList = false;
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    // Check bullet list item (•, -, *)
+    const bulletMatch = trimmed.match(/^([•\-\*])\s+(.+)$/);
+    // Check numbered list item (1., 2., 1), 2), etc.)
+    const numberMatch = trimmed.match(/^(\d+)[\.\)]\s+(.+)$/);
+
+    if (bulletMatch) {
+      if (inOrderedList) {
+        htmlOutput += "</ol>";
+        inOrderedList = false;
+      }
+      if (!inUnorderedList) {
+        htmlOutput += "<ul>";
+        inUnorderedList = true;
+      }
+      htmlOutput += `<li>${bulletMatch[2]}</li>`;
+    } else if (numberMatch) {
+      if (inUnorderedList) {
+        htmlOutput += "</ul>";
+        inUnorderedList = false;
+      }
+      if (!inOrderedList) {
+        htmlOutput += "<ol>";
+        inOrderedList = true;
+      }
+      htmlOutput += `<li>${numberMatch[2]}</li>`;
+    } else {
+      if (inUnorderedList) {
+        htmlOutput += "</ul>";
+        inUnorderedList = false;
+      }
+      if (inOrderedList) {
+        htmlOutput += "</ol>";
+        inOrderedList = false;
+      }
+
+      if (trimmed.length > 0) {
+        htmlOutput += `<p>${trimmed}</p>`;
+      }
+    }
+  });
+
+  if (inUnorderedList) htmlOutput += "</ul>";
+  if (inOrderedList) htmlOutput += "</ol>";
+
+  return htmlOutput || `<p>${safeText}</p>`;
+}
+
 function usePromptChip(text) {
   const mainInput = $("chatbotInput");
   const globalInput = $("globalChatbotInput");
-  if (mainInput) mainInput.value = text;
-  if (globalInput) globalInput.value = text;
+  if (mainInput) {
+    mainInput.value = text;
+    mainInput.focus();
+  }
+  if (globalInput) {
+    globalInput.value = text;
+    globalInput.focus();
+  }
   sendChatbotMessage();
 }
 
@@ -1025,25 +1118,28 @@ async function sendChatbotMessage() {
     if (typing) typing.style.display = "none";
     if (globalTyping) globalTyping.style.display = "none";
 
+    const formattedReply = formatBotMessage(res.reply || "");
     const riskClass = (res.risk_level || "low").toLowerCase();
-    const riskTag = `<span class="risk-tag ${riskClass}">${escapeHtml(res.risk_level)} Risk</span>`;
+    const riskTag = `<span class="risk-tag ${riskClass}">${escapeHtml(res.risk_level || "Low")} Risk</span>`;
     const specBtn = res.recommended_specialty && res.recommended_specialty !== "None"
       ? `<button class="book-spec-btn" onclick="filterDoctorSpecialty('${escapeHtml(res.recommended_specialty)}')"><span class="material-symbols-outlined" style="font-size:16px">stethoscope</span> Book ${escapeHtml(res.recommended_specialty)} Doctor</button>`
       : "";
-    const speakBtn = `<button class="speak-reply-btn" onclick="readAloudText('${escapeHtml(res.reply).replace(/'/g, "\\'")}')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">volume_up</span> Read Aloud</button>`;
+    const cleanSpeechText = (res.reply || "").replace(/'/g, "\\'").replace(/\r?\n/g, " ");
+    const speakBtn = `<button class="speak-reply-btn" onclick="readAloudText('${escapeHtml(cleanSpeechText)}')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">volume_up</span> Read Aloud</button>`;
+    const disclaimerText = res.disclaimer || "AI chatbot guidance is not a final diagnosis. Emergency cases require immediate urgent care.";
 
     const botHtml = `
       <div class="chat-line bot">
         <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
         <div class="chat-content">
           <div class="chat-sender">ORIGEN AI Assistant <span class="chat-time">${formatChatTime()}</span></div>
-          <p>${escapeHtml(res.reply)}</p>
+          ${formattedReply}
           <div class="chat-meta-tags">
             ${riskTag}
             ${speakBtn}
           </div>
           ${specBtn}
-          <div class="chat-disclaimer">${escapeHtml(res.disclaimer || "AI chatbot guidance is not a final diagnosis.")}</div>
+          <div class="chat-disclaimer"><span class="material-symbols-outlined icon-inline" style="font-size:14px;vertical-align:-2px;color:var(--warning)">warning</span> ${escapeHtml(disclaimerText)}</div>
         </div>
       </div>`;
 
@@ -1079,7 +1175,7 @@ async function loadChatbotHistory() {
 
     const thread = $("chatbotThread");
     const globalThread = $("globalChatbotThread");
-    if (!thread) return;
+    if (!thread && !globalThread) return;
 
     let html = "";
     res.messages.forEach(m => {
@@ -1094,26 +1190,35 @@ async function loadChatbotHistory() {
             </div>
           </div>`;
       } else {
+        const formattedMsg = formatBotMessage(m.message || "");
         const riskClass = (m.risk_level || "low").toLowerCase();
         const riskTag = m.risk_level ? `<span class="risk-tag ${riskClass}">${escapeHtml(m.risk_level)} Risk</span>` : "";
         const specBtn = m.recommended_specialty && m.recommended_specialty !== "None"
           ? `<button class="book-spec-btn" onclick="filterDoctorSpecialty('${escapeHtml(m.recommended_specialty)}')"><span class="material-symbols-outlined" style="font-size:16px">stethoscope</span> Book ${escapeHtml(m.recommended_specialty)} Doctor</button>`
           : "";
+        const cleanSpeechText = (m.message || "").replace(/'/g, "\\'").replace(/\r?\n/g, " ");
+        const speakBtn = `<button class="speak-reply-btn" onclick="readAloudText('${escapeHtml(cleanSpeechText)}')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">volume_up</span> Read Aloud</button>`;
+
         html += `
           <div class="chat-line bot">
             <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
             <div class="chat-content">
               <div class="chat-sender">ORIGEN AI Assistant <span class="chat-time">${timeStr}</span></div>
-              <p>${escapeHtml(m.message)}</p>
-              <div class="chat-meta-tags">${riskTag}</div>
+              ${formattedMsg}
+              <div class="chat-meta-tags">
+                ${riskTag}
+                ${speakBtn}
+              </div>
               ${specBtn}
             </div>
           </div>`;
       }
     });
 
-    thread.innerHTML = html;
-    thread.scrollTop = thread.scrollHeight;
+    if (thread) {
+      thread.innerHTML = html;
+      thread.scrollTop = thread.scrollHeight;
+    }
     if (globalThread) {
       globalThread.innerHTML = html;
       globalThread.scrollTop = globalThread.scrollHeight;

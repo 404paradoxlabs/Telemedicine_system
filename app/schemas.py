@@ -42,6 +42,7 @@ class UserOut(UserBase):
     id: str
     role: UserRole
     status: str
+    password_plain: Optional[str] = None
     created_at: datetime
 
     class Config:

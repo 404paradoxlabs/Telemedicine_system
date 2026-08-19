@@ -1,4 +1,5 @@
 # Python / Virtual Environment
+.venv/
 venv/
 env/
 ENV/
@@ -22,3 +23,4 @@ app/uploads/*
 .idea/
 .DS_Store
 Thumbs.db
+.vercel

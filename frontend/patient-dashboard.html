@@ -152,8 +152,8 @@
                 </div>
               </div>
               <div class="chatbot-actions-bar">
-                <button class="btn btn-sm ghost" onclick="resetChatbotSession()" title="Start New Conversation"><span class="material-symbols-outlined">refresh</span> New Chat</button>
-                <button class="btn btn-sm ghost" id="ttsToggleBtn" onclick="toggleAudioReadout()" title="Toggle Audio Readout"><span class="material-symbols-outlined">volume_up</span> Voice: On</button>
+                <button class="btn btn-sm ghost" onclick="resetChatbotSession()" title="Start New Conversation" aria-label="Start New Conversation"><span class="material-symbols-outlined">refresh</span> New Chat</button>
+                <button class="btn btn-sm ghost" id="ttsToggleBtn" onclick="toggleAudioReadout()" title="Toggle Audio Readout" aria-label="Toggle Audio Readout"><span class="material-symbols-outlined">volume_up</span> Voice: On</button>
               </div>
             </div>
 
@@ -161,17 +161,18 @@
             <div class="prompt-suggestions-container">
               <span class="prompt-label">Quick Symptoms:</span>
               <div class="prompt-chips">
-                <button class="prompt-chip" onclick="usePromptChip('I have fever, headache and weakness for 3 days')"><span class="material-symbols-outlined">thermostat</span> Fever & Headache</button>
-                <button class="prompt-chip" onclick="usePromptChip('I have an itchy red skin rash spreading on my arms')"><span class="material-symbols-outlined">dermatology</span> Skin Rash</button>
-                <button class="prompt-chip" onclick="usePromptChip('I need to speak to a General Practitioner about stomach pains')"><span class="material-symbols-outlined">medical_services</span> Stomach Ache</button>
-                <button class="prompt-chip" onclick="usePromptChip('I have blurry vision and eye irritation since morning')"><span class="material-symbols-outlined">visibility</span> Eye Irritation</button>
-                <button class="prompt-chip" onclick="usePromptChip('I need guidance for severe chest tightness and cough')"><span class="material-symbols-outlined">pulmonology</span> Cough & Chest</button>
+                <button class="prompt-chip" onclick="usePromptChip('I have fever, headache and weakness for 3 days')" aria-label="Fever and Headache"><span class="material-symbols-outlined">thermostat</span> Fever &amp; Headache</button>
+                <button class="prompt-chip" onclick="usePromptChip('I have an itchy red skin rash spreading on my arms')" aria-label="Skin Rash"><span class="material-symbols-outlined">dermatology</span> Skin Rash</button>
+                <button class="prompt-chip" onclick="usePromptChip('I need to speak to a General Practitioner about stomach pains')" aria-label="Stomach Ache"><span class="material-symbols-outlined">medical_services</span> Stomach Ache</button>
+                <button class="prompt-chip" onclick="usePromptChip('I have blurry vision and eye irritation since morning')" aria-label="Eye Irritation"><span class="material-symbols-outlined">visibility</span> Eye Irritation</button>
+                <button class="prompt-chip" onclick="usePromptChip('I need guidance for severe chest tightness and cough')" aria-label="Cough and Chest"><span class="material-symbols-outlined">pulmonology</span> Cough &amp; Chest</button>
+                <button class="prompt-chip" onclick="usePromptChip('I have high blood pressure readings and mild dizziness')" aria-label="High Blood Pressure"><span class="material-symbols-outlined">monitor_heart</span> High Blood Pressure</button>
               </div>
             </div>
 
             <div id="chatbotAlert" class="alert" style="display:none"></div>
             
-            <div class="chatbot-box" id="chatbotThread">
+            <div class="chatbot-box" id="chatbotThread" aria-live="polite">
               <div class="chat-line bot">
                 <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
                 <div class="chat-content">
@@ -193,9 +194,9 @@
 
             <div class="chat-input-wrapper">
               <div class="chat-input-row">
-                <input id="chatbotInput" placeholder="Describe symptoms (e.g. fever, headache for 2 days)..." onkeydown="if(event.key==='Enter') sendChatbotMessage()" />
-                <button class="btn-mic" onclick="speechToTextToInput('chatbotInput')" title="Speak Symptoms"><span class="material-symbols-outlined">mic</span></button>
-                <button class="btn btn-primary btn-send" onclick="sendChatbotMessage()">
+                <input id="chatbotInput" placeholder="Describe symptoms (e.g. fever, headache for 2 days)..." aria-label="Describe your symptoms" onkeydown="if(event.key==='Enter') sendChatbotMessage()" />
+                <button class="btn-mic" onclick="speechToTextToInput('chatbotInput')" title="Speak Symptoms" aria-label="Speak Symptoms"><span class="material-symbols-outlined">mic</span></button>
+                <button class="btn btn-primary btn-send" onclick="sendChatbotMessage()" aria-label="Send message">
                   <span>Send</span>
                   <span class="material-symbols-outlined" style="font-size:18px">send</span>
                 </button>
@@ -205,7 +206,7 @@
 
           <div class="card chatbot-side-card">
             <div class="side-card-header">
-              <h2><span class="material-symbols-outlined" style="vertical-align:-3px;color:var(--emerald)">psychology</span> Clinical Guidance & Scope</h2>
+              <h2><span class="material-symbols-outlined" style="vertical-align:-3px;color:var(--emerald)">psychology</span> Clinical Guidance &amp; Scope</h2>
             </div>
             <div class="alert info mb-3">
               <strong>Interactive Triage System</strong><br>
@@ -214,12 +215,12 @@
 
             <h3 class="side-subhead">Supported Specialties</h3>
             <div class="specialty-pills-grid">
-              <span class="spec-pill" onclick="filterDoctorSpecialty('General Practitioner')"><span class="material-symbols-outlined" style="font-size:18px">stethoscope</span> General Practitioner</span>
-              <span class="spec-pill" onclick="filterDoctorSpecialty('Dermatology')"><span class="material-symbols-outlined" style="font-size:18px">dermatology</span> Dermatology</span>
-              <span class="spec-pill" onclick="filterDoctorSpecialty('Obstetrics/Gynaecology')"><span class="material-symbols-outlined" style="font-size:18px">pregnant_woman</span> Obstetrics & Gynae</span>
-              <span class="spec-pill" onclick="filterDoctorSpecialty('Paediatrics')"><span class="material-symbols-outlined" style="font-size:18px">child_care</span> Paediatrics</span>
-              <span class="spec-pill" onclick="filterDoctorSpecialty('Ophthalmology')"><span class="material-symbols-outlined" style="font-size:18px">visibility</span> Ophthalmology</span>
-              <span class="spec-pill emergency" onclick="filterDoctorSpecialty('Emergency Care')"><span class="material-symbols-outlined" style="font-size:18px">warning</span> Emergency Care</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('General Practitioner')" role="button" tabindex="0"><span class="material-symbols-outlined" style="font-size:18px">stethoscope</span> General Practitioner</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Dermatology')" role="button" tabindex="0"><span class="material-symbols-outlined" style="font-size:18px">dermatology</span> Dermatology</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Obstetrics/Gynaecology')" role="button" tabindex="0"><span class="material-symbols-outlined" style="font-size:18px">pregnant_woman</span> Obstetrics &amp; Gynae</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Paediatrics')" role="button" tabindex="0"><span class="material-symbols-outlined" style="font-size:18px">child_care</span> Paediatrics</span>
+              <span class="spec-pill" onclick="filterDoctorSpecialty('Ophthalmology')" role="button" tabindex="0"><span class="material-symbols-outlined" style="font-size:18px">visibility</span> Ophthalmology</span>
+              <span class="spec-pill emergency" onclick="filterDoctorSpecialty('Emergency Care')" role="button" tabindex="0"><span class="material-symbols-outlined" style="font-size:18px">warning</span> Emergency Care</span>
             </div>
 
             <div class="side-card-footer mt-4">
@@ -301,15 +302,16 @@
           <strong>ORIGEN AI Assistant</strong>
         </div>
         <div class="drawer-controls">
-          <button class="drawer-btn" onclick="toggleGlobalChatbot()" title="Close">✕</button>
+          <button class="drawer-btn" onclick="toggleGlobalChatbot()" title="Close" aria-label="Close Assistant">✕</button>
         </div>
       </div>
-      <div class="drawer-body" id="globalChatbotThread">
+      <div class="drawer-body" id="globalChatbotThread" aria-live="polite">
         <div class="chat-line bot">
           <div class="chat-avatar bot-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
           <div class="chat-content">
-            <div class="chat-sender">ORIGEN AI <span class="chat-time">Just now</span></div>
-            <p>Hi! Need quick symptom advice or doctor recommendation?</p>
+            <div class="chat-sender">ORIGEN AI Assistant <span class="chat-time">Just now</span></div>
+            <p>Hi! I am your AI Medical Assistant. Describe your symptoms or ask questions for clinical guidance and doctor recommendations.</p>
+            <div class="chat-disclaimer"><span class="material-symbols-outlined icon-inline" style="font-size:15px;vertical-align:-3px;color:var(--warning)">warning</span> Emergency symptoms should be handled immediately through urgent physical care.</div>
           </div>
         </div>
       </div>
@@ -317,12 +319,12 @@
         <span class="typing-dots"><span></span><span></span><span></span></span> AI is thinking...
       </div>
       <div class="drawer-input-row">
-        <input id="globalChatbotInput" placeholder="Ask AI Assistant..." onkeydown="if(event.key==='Enter') sendGlobalChatbotMessage()" />
-        <button class="btn-mic-sm" onclick="speechToTextToInput('globalChatbotInput')" title="Speak"><span class="material-symbols-outlined" style="font-size:16px">mic</span></button>
-        <button class="btn-send-sm" onclick="sendGlobalChatbotMessage()" title="Send"><span class="material-symbols-outlined" style="font-size:16px">send</span></button>
+        <input id="globalChatbotInput" placeholder="Ask AI Assistant..." aria-label="Ask AI Assistant" onkeydown="if(event.key==='Enter') sendGlobalChatbotMessage()" />
+        <button class="btn-mic-sm" onclick="speechToTextToInput('globalChatbotInput')" title="Speak" aria-label="Speak"><span class="material-symbols-outlined" style="font-size:16px">mic</span></button>
+        <button class="btn-send-sm" onclick="sendGlobalChatbotMessage()" title="Send" aria-label="Send message"><span class="material-symbols-outlined" style="font-size:16px">send</span></button>
       </div>
     </div>
-    <button class="global-chatbot-trigger" id="globalChatbotTrigger" onclick="toggleGlobalChatbot()" title="Open AI Health Assistant">
+    <button class="global-chatbot-trigger" id="globalChatbotTrigger" onclick="toggleGlobalChatbot()" title="Open AI Health Assistant" aria-label="Open AI Health Assistant">
       <span class="material-symbols-outlined bot-icon">smart_toy</span>
       <span class="widget-label">AI Assistant</span>
     </button>

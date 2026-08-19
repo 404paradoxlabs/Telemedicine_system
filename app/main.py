@@ -97,11 +97,44 @@ from .schemas import (
     UserUpdateAdmin,
 )
 
-Base.metadata.create_all(bind=engine)
+from sqlalchemy import text
+from .seed import seed
+
+import tempfile
+
+try:
+    Base.metadata.create_all(bind=engine)
+
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE users ADD COLUMN password_plain VARCHAR(255)"))
+            conn.commit()
+        except Exception:
+            pass
+
+    db_seed_session = SessionLocal()
+    try:
+        seed()
+    except Exception:
+        pass
+    finally:
+        try:
+            db_seed_session.close()
+        except Exception:
+            pass
+except Exception as e:
+    print(f"Serverless startup note: {e}")
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-UPLOAD_DIR = ROOT_DIR / "app" / "uploads"
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+if os.environ.get("VERCEL") or os.environ.get("AWS_EXECUTION_ENV"):
+    UPLOAD_DIR = Path(tempfile.gettempdir()) / "uploads"
+else:
+    UPLOAD_DIR = ROOT_DIR / "app" / "uploads"
+
+try:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 app = FastAPI(
     title="ORIGEN ONE GHANA GOLD COAST Telemedicine API",
@@ -540,6 +573,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         email=payload.email,
         phone=payload.phone,
         password_hash=hash_password(payload.password),
+        password_plain=payload.password,
         role=payload.role,
     )
     db.add(user)
@@ -610,7 +644,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    token = create_access_token(subject=user.id, role=user.role.value)
+    token = create_access_token(subject=str(user.id), role=user.role.value, email=user.email)
     return Token(access_token=token)
 
 
@@ -2097,6 +2131,7 @@ def admin_create_user(
         email=payload.email,
         phone=payload.phone,
         password_hash=hash_password(payload.password),
+        password_plain=payload.password,
         role=payload.role,
     )
     db.add(user)
@@ -2194,6 +2229,7 @@ def admin_update_user(
         if len(payload.new_password) < 6:
             raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
         target_user.password_hash = hash_password(payload.new_password)
+        target_user.password_plain = payload.new_password
 
     log_action(db, current_user.id, "edited user account", "user", target_user.id, details=f"Updated {target_user.email}")
     db.commit()
